@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Progresso da Engenharia Mecatrônica</title>
+  <style>
+    :root {
+      /* Personalize a cor da barra aqui */
+      --progress-color: #399B79;
+      --track-color: rgba(128, 128, 128, 0.20);
+      --bar-height: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: transparent;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 2px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: var(--bar-height);
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--track-color);
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--progress-color);
+      transition: width 500ms ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .progress-fill { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div
+    class="progress-track"
+    role="progressbar"
+    aria-label="Progresso mensal da Engenharia Mecatrônica"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow="0"
+  >
+    <div class="progress-fill" id="progress"></div>
+  </div>
+
+  <script>
+    // Período da graduação: fevereiro/2024 a dezembro/2029.
+    // A conclusão prevista é considerada no último dia de dezembro de 2029.
+    const start = new Date(2024, 1, 1);       // 01/02/2024
+    const endExclusive = new Date(2030, 0, 1); // 01/01/2030
+
+    function calculateProgress() {
+      const now = new Date();
+
+      // Progresso por meses-calendário completos, atualizado automaticamente.
+      const totalMonths =
+        (endExclusive.getFullYear() - start.getFullYear()) * 12 +
+        (endExclusive.getMonth() - start.getMonth());
+
+      let elapsedMonths =
+        (now.getFullYear() - start.getFullYear()) * 12 +
+        (now.getMonth() - start.getMonth());
+
+      // Antes do início: 0%. Depois do prazo: 100%.
+      elapsedMonths = Math.max(0, Math.min(totalMonths, elapsedMonths));
+
+      const percent = (elapsedMonths / totalMonths) * 100;
+      const rounded = Math.round(percent * 10) / 10;
+
+      const fill = document.getElementById("progress");
+      const track = document.querySelector(".progress-track");
+
+      fill.style.width = `${percent}%`;
+      track.setAttribute("aria-valuenow", String(rounded));
+    }
+
+    calculateProgress();
+
+    // Recalcula ao abrir e também quando a página fica aberta durante a virada do mês.
+    setInterval(calculateProgress, 60 * 60 * 1000);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) calculateProgress();
+    });
+  </script>
+</body>
+</html>
